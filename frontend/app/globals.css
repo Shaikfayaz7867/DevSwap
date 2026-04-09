@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --muted: 240 4.8% 95.9%;
+    --border: 240 5.9% 90%;
+    
+    /* Neon Primary (Electric Cyan) */
+    --primary: 190 90% 50%;
+    /* Neon Accent (Hot Violet/Pink) */
+    --accent: 280 85% 60%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Ultra Deep Dark/Blue Background */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    /* Slightly lighter card for contrast */
+    --card: 240 10% 6%;
+    --muted: 240 3.7% 15.9%;
+    --border: 240 3.7% 15.9%;
+    
+    /* Vibrant Neon Colors */
+    --primary: 190 90% 50%;
+    --accent: 280 85% 60%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased font-sans selection:bg-primary/30 selection:text-white;
+  }
+  
+  /* Add a modern default ambient background for both light and dark mode */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: 
+      radial-gradient(circle at 15% 50%, hsl(var(--primary) / 0.08), transparent 25%),
+      radial-gradient(circle at 85% 30%, hsl(var(--accent) / 0.08), transparent 25%);
+    background-attachment: fixed;
+    pointer-events: none;
+  }
+}
+
+@layer components {
+  /* Ultra-modern Glassmorphism */
+  .glass {
+    @apply bg-background/40 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-xl;
+  }
+
+  /* Sleek Surface */
+  .surface {
+    @apply bg-card/60 backdrop-blur-md border border-white/10 dark:border-white/5 shadow-2xl;
+  }
+  
+  /* Neon Glow effect */
+  .glow-effect {
+    @apply relative before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-gradient-to-r before:from-primary/50 before:to-accent/50 before:blur-xl before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500;
+  }
+
+  /* Animated Border Wrapper */
+  .animated-border {
+    @apply relative p-[1px] overflow-hidden rounded-2xl z-0;
+  }
+  
+  .animated-border::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    z-index: -1;
+    background: conic-gradient(from 0deg, transparent 0 340deg, hsl(var(--primary)) 360deg);
+    animation: rotate 4s linear infinite;
+  }
+  
+  .animated-border::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    background: inherit;
+    border-radius: calc(1rem - 1px); /* Match rounded-2xl which is 1rem */
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+  }
+
+  .text-gradient-animate {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_auto] animate-shimmer;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
