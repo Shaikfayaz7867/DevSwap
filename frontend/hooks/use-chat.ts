@@ -20,7 +20,7 @@ export function useSendMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: { matchId: string; receiverId: string; message: string }) =>
+    mutationFn: (payload: { matchId: string; receiverId: string; message: string; fileUrl?: string }) =>
       sendMessage(token || '', payload),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['messages', token, variables.matchId] });

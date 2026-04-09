@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { loginSchema, type LoginFormValues } from '@/lib/validators';
 import { useLogin } from '@/hooks/use-auth';
+import { GoogleSignInButton } from '@/components/auth/google-auth-button';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -45,6 +46,17 @@ export default function LoginPage() {
           {mutation.isPending ? 'Logging in...' : 'Log in'}
         </Button>
       </form>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border/50" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-foreground/40">Or continue with</span>
+        </div>
+      </div>
+
+      <GoogleSignInButton />
       <p className="mt-5 text-sm text-foreground/70">
         New to DevSwap?{' '}
         <Link href="/register" className="font-semibold text-primary">

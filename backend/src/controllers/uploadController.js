@@ -5,11 +5,14 @@ const { uploadToCloudinary } = require('../services/uploadService');
 const { ApiError } = require('../utils/apiError');
 
 const storage = multer.diskStorage({});
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+});
 
-const uploadImage = asyncHandler(async (req, res) => {
+const uploadFile = asyncHandler(async (req, res) => {
   if (!req.file?.path) {
-    throw new ApiError(400, 'Image file is required');
+    throw new ApiError(400, 'File is required');
   }
 
   const url = await uploadToCloudinary(req.file.path, 'devswap/uploads');
@@ -17,4 +20,4 @@ const uploadImage = asyncHandler(async (req, res) => {
   res.status(201).json({ url });
 });
 
-module.exports = { upload, uploadImage };
+module.exports = { upload, uploadFile };

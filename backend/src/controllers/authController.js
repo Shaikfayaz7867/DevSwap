@@ -6,7 +6,7 @@ const { asyncHandler } = require('../utils/asyncHandler');
 const { ApiError } = require('../utils/apiError');
 const { signToken } = require('../services/tokenService');
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID?.trim());
 
 const responseWithAuth = (user) => ({
   token: signToken(user._id),
@@ -47,7 +47,7 @@ const googleLogin = asyncHandler(async (req, res) => {
 
   const ticket = await googleClient.verifyIdToken({
     idToken,
-    audience: process.env.GOOGLE_CLIENT_ID,
+    audience: process.env.GOOGLE_CLIENT_ID?.trim(),
   });
   const payload = ticket.getPayload();
 

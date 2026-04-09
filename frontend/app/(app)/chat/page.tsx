@@ -31,7 +31,7 @@ export default function ChatPage() {
       </Card>
 
       {selected ? (
-        <ChatWindow matchId={selected._id} receiverId={selected.otherUser._id} />
+        <ChatWindow matchId={selected._id} receiver={selected.otherUser} />
       ) : (
         <Card className="p-8 text-foreground/70">Pick a match to start chatting.</Card>
       )}

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { VirtualizedFeed } from '@/components/feed/virtualized-feed';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ImageUpload } from '@/components/ui/image-upload';
+import { FileUpload } from '@/components/ui/file-upload';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useCreatePost, useFeed, useLikePost } from '@/hooks/use-feed';
@@ -41,7 +41,7 @@ export default function FeedPage() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <ImageUpload value={images} onChange={setImages} />
+        <FileUpload value={images} onChange={setImages} />
         <div className="flex justify-end">
           <Button
             onClick={() => {

@@ -14,8 +14,9 @@ const setupSocket = (server) => {
   io.on('connection', (socket) => {
     socket.on('presence:online', async (userId) => {
       if (!userId) return;
-      await User.findByIdAndUpdate(userId, { isOnline: true, lastSeenAt: new Date() });
-      io.emit('presence:update', { userId, isOnline: true });
+      const lastSeenAt = new Date();
+      await User.findByIdAndUpdate(userId, { isOnline: true, lastSeenAt });
+      io.emit('presence:update', { userId, isOnline: true, lastSeenAt });
     });
 
     socket.on('room:join', (roomId) => {
@@ -33,8 +34,9 @@ const setupSocket = (server) => {
     socket.on('disconnecting', async () => {
       const userId = socket.handshake.auth?.userId;
       if (userId) {
-        await User.findByIdAndUpdate(userId, { isOnline: false, lastSeenAt: new Date() });
-        io.emit('presence:update', { userId, isOnline: false });
+        const lastSeenAt = new Date();
+        await User.findByIdAndUpdate(userId, { isOnline: false, lastSeenAt });
+        io.emit('presence:update', { userId, isOnline: false, lastSeenAt });
       }
     });
   });

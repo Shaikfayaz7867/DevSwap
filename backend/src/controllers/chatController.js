@@ -6,7 +6,7 @@ const { getIO } = require('../services/socketService');
 const { createNotification } = require('../services/notificationService');
 
 const sendMessage = asyncHandler(async (req, res) => {
-  const { matchId, receiverId, message } = req.body;
+  const { matchId, receiverId, message, fileUrl } = req.body;
 
   const match = await Match.findById(matchId);
   if (!match || !match.users.some((u) => u.toString() === req.user._id.toString())) {
@@ -17,7 +17,8 @@ const sendMessage = asyncHandler(async (req, res) => {
     matchId,
     sender: req.user._id,
     receiver: receiverId,
-    message,
+    message: message || '',
+    fileUrl,
   });
 
   const populated = await created.populate([
@@ -30,11 +31,13 @@ const sendMessage = asyncHandler(async (req, res) => {
     io.to(matchId).emit('chat:newMessage', populated);
   }
 
+  let bodyText = message ? message.slice(0, 80) : '';
+  if (!message && fileUrl) bodyText = '[Attachment]';
   await createNotification({
     userId: receiverId,
     type: 'message',
     title: 'New Message',
-    body: `${req.user.name}: ${message.slice(0, 80)}`,
+    body: `${req.user.name}: ${bodyText}`,
     data: { matchId, senderId: req.user._id },
   });
 
