@@ -1,5 +1,5 @@
 import { apiRequest } from '@/services/api';
-import { Post } from '@/types';
+import { FeedComment, Post } from '@/types';
 
 export const getFeed = (token: string, page = 1, tag?: string) => {
   const params = new URLSearchParams({ page: String(page), limit: '10' });
@@ -19,14 +19,11 @@ export const bookmarkPost = (token: string, postId: string) =>
   apiRequest<{ bookmarked: boolean }>(`/posts/${postId}/bookmark`, { method: 'POST', token });
 
 export const getComments = (token: string, postId: string) =>
-  apiRequest<{ comments: Array<{ _id: string; comment: string; userId: { name: string; profileImage?: string } }> }>(
-    `/posts/${postId}/comments`,
-    { token },
-  );
+  apiRequest<{ comments: FeedComment[] }>(`/posts/${postId}/comments`, { token });
 
-export const addComment = (token: string, postId: string, comment: string) =>
-  apiRequest<{ comment: { _id: string; comment: string } }>(`/posts/${postId}/comments`, {
+export const addComment = (token: string, postId: string, payload: { comment: string; parentCommentId?: string }) =>
+  apiRequest<{ comment: FeedComment }>(`/posts/${postId}/comments`, {
     method: 'POST',
     token,
-    body: { comment },
+    body: payload,
   });

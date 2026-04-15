@@ -14,6 +14,7 @@ const setupSocket = (server) => {
   io.on('connection', (socket) => {
     socket.on('presence:online', async (userId) => {
       if (!userId) return;
+      socket.join(`user:${userId}`);
       const lastSeenAt = new Date();
       await User.findByIdAndUpdate(userId, { isOnline: true, lastSeenAt });
       io.emit('presence:update', { userId, isOnline: true, lastSeenAt });

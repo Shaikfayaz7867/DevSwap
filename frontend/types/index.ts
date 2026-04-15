@@ -31,6 +31,16 @@ export type Post = {
   tags: string[];
   likes: string[];
   commentsCount: number;
+  isBookmarked?: boolean;
+  createdAt: string;
+};
+
+export type FeedComment = {
+  _id: string;
+  postId: string;
+  userId: Pick<AuthUser, '_id' | 'name' | 'profileImage' | 'role'>;
+  parentCommentId?: string | null;
+  comment: string;
   createdAt: string;
 };
 

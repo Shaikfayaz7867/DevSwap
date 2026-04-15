@@ -6,6 +6,7 @@ const User = require('../models/User');
 const { asyncHandler } = require('../utils/asyncHandler');
 const { ApiError } = require('../utils/apiError');
 const { createNotification } = require('../services/notificationService');
+const { getIO } = require('../services/socketService');
 
 const getFeed = asyncHandler(async (req, res) => {
   const page = Number(req.query.page || 1);
@@ -17,14 +18,25 @@ const getFeed = asyncHandler(async (req, res) => {
     query.tags = req.query.tag.toLowerCase();
   }
 
+  const me = await User.findById(req.user._id).select('bookmarks').lean();
+  const bookmarkSet = new Set((me?.bookmarks || []).map((id) => id.toString()));
+
   const posts = await Post.find(query)
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
     .populate('userId', 'name profileImage role experience');
 
-  const hasMore = posts.length === limit;
-  res.json({ posts, page, hasMore });
+  const feedPosts = posts.map((postDoc) => {
+    const post = postDoc.toObject();
+    return {
+      ...post,
+      isBookmarked: bookmarkSet.has(post._id.toString()),
+    };
+  });
+
+  const hasMore = feedPosts.length === limit;
+  res.json({ posts: feedPosts, page, hasMore });
 });
 
 const createPost = asyncHandler(async (req, res) => {
@@ -65,16 +77,40 @@ const toggleLike = asyncHandler(async (req, res) => {
 
   await post.save();
 
+  const io = getIO();
+  if (io) {
+    io.to('feed').emit('feed:postLiked', {
+      postId: post._id.toString(),
+      likesCount: post.likes.length,
+    });
+  }
+
   res.json({ liked: !exists, likesCount: post.likes.length });
 });
 
 const addComment = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) throw new ApiError(400, 'Invalid post id');
+
   const post = await Post.findById(req.params.id);
   if (!post) throw new ApiError(404, 'Post not found');
+
+  const parentCommentId = req.body.parentCommentId || null;
+  if (parentCommentId && !mongoose.isValidObjectId(parentCommentId)) {
+    throw new ApiError(400, 'Invalid parent comment id');
+  }
+
+  if (parentCommentId) {
+    const parent = await Comment.findOne({ _id: parentCommentId, postId: post._id }).select('_id');
+    if (!parent) {
+      throw new ApiError(404, 'Parent comment not found for this post');
+    }
+  }
 
   const comment = await Comment.create({
     postId: post._id,
     userId: req.user._id,
+    parentCommentId,
     comment: req.body.comment,
   });
 
@@ -86,8 +122,18 @@ const addComment = asyncHandler(async (req, res) => {
       userId: post.userId,
       type: 'comment',
       title: 'New Comment',
-      body: `${req.user.name} commented on your post`,
+      body: parentCommentId ? `${req.user.name} replied on your post` : `${req.user.name} commented on your post`,
       data: { postId: post._id, commentId: comment._id },
+    });
+  }
+
+  const io = getIO();
+  if (io) {
+    io.to('feed').emit('feed:commentAdded', {
+      postId: post._id.toString(),
+      commentsCount: post.commentsCount,
+      commentId: comment._id.toString(),
+      parentCommentId: parentCommentId ? parentCommentId.toString() : null,
     });
   }
 
@@ -96,6 +142,8 @@ const addComment = asyncHandler(async (req, res) => {
 });
 
 const getPostComments = asyncHandler(async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) throw new ApiError(400, 'Invalid post id');
+
   const comments = await Comment.find({ postId: req.params.id })
     .sort({ createdAt: 1 })
     .populate('userId', 'name profileImage role');
@@ -104,7 +152,10 @@ const getPostComments = asyncHandler(async (req, res) => {
 });
 
 const toggleBookmark = asyncHandler(async (req, res) => {
-  const post = await Post.findById(req.params.id);
+  const { id } = req.params;
+  if (!mongoose.isValidObjectId(id)) throw new ApiError(400, 'Invalid post id');
+
+  const post = await Post.findById(id);
   if (!post) throw new ApiError(404, 'Post not found');
 
   const user = await User.findById(req.user._id);
@@ -117,6 +168,15 @@ const toggleBookmark = asyncHandler(async (req, res) => {
   }
 
   await user.save();
+
+  const io = getIO();
+  if (io) {
+    io.to(`user:${req.user._id.toString()}`).emit('feed:bookmarkToggled', {
+      postId: post._id.toString(),
+      bookmarked: !bookmarked,
+    });
+  }
+
   res.json({ bookmarked: !bookmarked });
 });
 

@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Bookmark, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 import { Avatar } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Post } from '@/types';
@@ -38,6 +37,7 @@ export function PostCard({
     : post.description.substring(0, descriptionThreshold) + '...';
 
   const isLiked = user && post.likes.includes(user._id);
+  const isBookmarked = Boolean(post.isBookmarked);
 
   return (
     <Card className="overflow-hidden p-0 border-border/50 bg-card/50 backdrop-blur-sm">
@@ -82,16 +82,16 @@ export function PostCard({
       ) : null}
 
       {/* Action Row */}
-      <div className="flex items-center gap-1 px-3 pt-3">
-        <Button variant="ghost" size="icon" className="group h-10 w-10 text-foreground/70 hover:text-primary transition-colors" onClick={onLike}>
-          <Heart className={cn("h-6 w-6 transition-transform group-active:scale-125", isLiked ? "fill-primary text-primary" : "")} />
+      <div className="flex items-center gap-2 px-3 pt-3">
+        <Button variant="ghost" size="sm" className="group h-10 w-10 p-0 text-foreground/70 hover:text-primary transition-colors" onClick={onLike}>
+          <Heart className={cn("h-5 w-5 transition-transform group-active:scale-125", isLiked ? "fill-primary text-primary" : "")} />
         </Button>
-        <Button variant="ghost" size="icon" className="h-10 w-10 text-foreground/70 hover:text-primary transition-colors" onClick={onComment}>
-          <MessageCircle className="h-6 w-6" />
+        <Button variant="ghost" size="sm" className="h-10 w-10 p-0 text-foreground/70 hover:text-primary transition-colors" onClick={onComment}>
+          <MessageCircle className="h-5 w-5" />
         </Button>
         <div className="flex-1" />
-        <Button variant="ghost" size="icon" className="h-10 w-10 text-foreground/70 hover:text-primary transition-colors" onClick={onBookmark}>
-          <Bookmark className="h-6 w-6" />
+        <Button variant="ghost" size="sm" className="h-10 w-10 p-0 text-foreground/70 hover:text-primary transition-colors" onClick={onBookmark}>
+          <Bookmark className={cn('h-5 w-5', isBookmarked ? 'fill-primary text-primary' : '')} />
         </Button>
       </div>
 
@@ -99,6 +99,9 @@ export function PostCard({
         <p className="text-sm font-bold">
           {post.likes.length} <span className="font-medium text-foreground/60">likes</span>
         </p>
+        <button type="button" className="text-xs text-foreground/55 hover:text-foreground transition-colors" onClick={onComment}>
+          View all {post.commentsCount || 0} comments
+        </button>
 
         {/* Title & Description */}
         <div className="space-y-1">

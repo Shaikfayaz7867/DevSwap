@@ -200,6 +200,7 @@ export function ChatWindow({ matchId, receiver }: { matchId: string; receiver: A
                     alert(err.message || 'File upload failed');
                   } finally {
                     setIsUploading(false);
+                    e.target.value = '';
                   }
                 }
               }}
@@ -220,9 +221,9 @@ export function ChatWindow({ matchId, receiver }: { matchId: string; receiver: A
             <Button
               type="submit"
               disabled={!text.trim() || sendMutation.isPending}
-              size="icon"
+              size="sm"
               className={cn(
-                "absolute right-1 top-1 h-10 w-10 rounded-xl transition-all grow-0",
+                "absolute right-1 top-1 h-10 w-10 rounded-xl p-0 transition-all grow-0",
                 text.trim() ? "bg-primary opacity-100 translate-x-0 scale-100" : "bg-transparent opacity-0 translate-x-2 scale-50 pointer-events-none"
               )}
             >

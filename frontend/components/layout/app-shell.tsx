@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell, Compass, House, LogOut, MessageSquare, Settings, UserRound, Users } from 'lucide-react';
+import { Bell, Bookmark, Compass, House, LogOut, MessageSquare, Settings, UserRound, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { NAV_LINKS } from '@/lib/constants';
@@ -14,6 +14,7 @@ import { cn } from '@/utils/cn';
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   '/home': House,
   '/feed': Compass,
+  '/bookmarks': Bookmark,
   '/matches': Users,
   '/chat': MessageSquare,
   '/profile': UserRound,

@@ -34,8 +34,16 @@ export function VirtualizedFeed({
     overscan: 5,
   });
 
+  if (!posts.length) {
+    return (
+      <div className="rounded-2xl border border-border/70 bg-card/70 p-8 text-center text-sm text-foreground/65">
+        No posts yet. Be the first one to share something useful.
+      </div>
+    );
+  }
+
   return (
-    <div ref={parentRef} className="h-[800px] overflow-auto scrollbar-hide">
+    <div ref={parentRef} className="h-[calc(100vh-14rem)] min-h-[28rem] overflow-auto scrollbar-hide">
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
@@ -49,7 +57,7 @@ export function VirtualizedFeed({
 
           return (
             <div
-              key={virtualItem.index}
+              key={virtualItem.key}
               style={{
                 position: 'absolute',
                 top: 0,

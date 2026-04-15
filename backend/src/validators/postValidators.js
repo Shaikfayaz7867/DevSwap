@@ -9,6 +9,7 @@ const createPostSchema = z.object({
 
 const commentSchema = z.object({
   comment: z.string().min(1).max(500),
+  parentCommentId: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid parent comment id').optional(),
 });
 
 module.exports = { createPostSchema, commentSchema };

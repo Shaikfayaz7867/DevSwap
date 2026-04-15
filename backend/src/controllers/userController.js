@@ -1,6 +1,9 @@
+const mongoose = require('mongoose');
+
 const User = require('../models/User');
 const Post = require('../models/Post');
 const { asyncHandler } = require('../utils/asyncHandler');
+const { ApiError } = require('../utils/apiError');
 
 const calcProfileCompletion = (payload) => {
   const keys = [
@@ -30,7 +33,16 @@ const calcProfileCompletion = (payload) => {
 };
 
 const getProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.params.id || req.user._id).select('-password');
+  const targetUserId = req.params.id || req.user._id;
+  if (!mongoose.isValidObjectId(targetUserId)) {
+    throw new ApiError(400, 'Invalid user id');
+  }
+
+  const user = await User.findById(targetUserId).select('-password');
+  if (!user) {
+    throw new ApiError(404, 'User not found');
+  }
+
   const posts = await Post.find({ userId: user._id }).sort({ createdAt: -1 }).limit(10);
 
   res.json({ user, posts });
